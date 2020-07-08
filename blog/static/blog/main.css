@@ -89,3 +89,11 @@ body {
     justify-content: center;
     text-align: center;
   }
+
+  .comments .comment {
+     padding: 20px;
+     background-color: #428bca;
+     border-radius: 5px;
+     height: 250px;
+     overflow: auto;
+  }

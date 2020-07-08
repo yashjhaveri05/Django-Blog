@@ -1,8 +1,10 @@
-from django.shortcuts import render, get_object_or_404
-from .models import Post
+from django.shortcuts import render, get_object_or_404, redirect, reverse
+from .models import Post,Comment
+from .forms import CommentForm
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic.edit import FormMixin
 from django.views.generic import (
     ListView,
     DetailView,
@@ -39,9 +41,29 @@ class UserPostListView(LoginRequiredMixin, ListView):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         return Post.objects.filter(author=user).order_by('-date_posted')
 
-class PostDetailView(LoginRequiredMixin, DetailView):
+class PostDetailView(LoginRequiredMixin, FormMixin, DetailView):
     model = Post
+    form_class = CommentForm
 
+    def get_success_url(self):
+        return reverse('post_detail', kwargs={'pk': self.object.id})
+
+    def get_context_data(self, **kwargs):
+        context = super(PostDetailView, self).get_context_data(**kwargs)
+        context['form'] = CommentForm(initial={'post': self.object})
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form):
+        form.save()
+        return super(PostDetailView , self).form_valid(form)
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
