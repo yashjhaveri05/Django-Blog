@@ -15,21 +15,24 @@
       </div>
       <h2 class="article-title">{{ object.title }}</h2>
       <p class="article-content">{{ object.content | safe }}</p>
+      <p>Total Comments : {{ post.comments.count }}</p>
     </div>
   </article>
-  <div class="comments">
+  <div class="comments bg-light">
     <h1 class="text-center">All Comments</h1>
     {% for comment in post.comments.all %}
-        <div class="col-md-6 comment">
-            <div class="date">{{ comment.created_on }}</div>
-            <strong>{{ comment.username }} | {{ comment.email }}</strong>
+        <div class="col-md-12 comment mb-3">
+            <img class="rounded-circle article-img" src="{{ comment.username.profile.image.url }}">
+            <a class="mr-2 text-dark" href="{% url 'user-posts' comment.username.username %}">{{ comment.username }}</a>
+            <small class="date">{{ comment.created_on|date:"F d, Y"  }}</small>
             <hr>
             <p>{{ comment.body|linebreaks }}</p>
         </div>
     {% empty %}
-        <p>No comments here yet !!!!</p>
+        <p>No comments found !!!!</p>
     {% endfor %}
 </div>
+<!--
   <div class="text-center">
     <h1>Add Comments</h1>
     <div class="col-md-12 add-comment">
@@ -40,4 +43,5 @@
       </form>
     </div>
   </div>
+-->
 {% endblock content %}
